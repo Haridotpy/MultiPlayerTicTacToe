@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel public/index.html --port 4000 --open",
+    "build": "parcel build public/index.html"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +17,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.0.8",
+    "@types/react-dom": "^18.0.3",
     "parcel": "^2.5.0"
   }
 }
