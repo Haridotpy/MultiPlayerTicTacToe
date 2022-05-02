@@ -12,6 +12,8 @@ const defaultUser = {
 	name: "",
 };
 
+const endPoint = process.env.REACT_APP_API_ENDPOINT;
+
 const App = () => {
 	const [name, setName] = useState<string>("");
 	const [roomId, setRoomId] = useState<string>("");
@@ -26,7 +28,12 @@ const App = () => {
 
 	const createRoom = async (): Promise<void> => {
 		try {
-			//
+			const response = await fetch(`${endPoint}/create-room`, {
+				method: "POST",
+				body: JSON.stringify(user),
+			});
+			const { roomId }: { message: string; roomId: string } = await response.json();
+			console.log(roomId);
 		} catch (err: any) {
 			console.error(err.message);
 		}
