@@ -1,22 +1,80 @@
+import { useState } from "react";
+import { useUser } from "../hooks/useUser";
+import { v4 as uuidV4 } from "uuid";
+
+interface User {
+	id: string;
+	name: string;
+}
+
+const defaultUser = {
+	id: "",
+	name: "",
+};
+
 const App = () => {
+	const [name, setName] = useState<string>("");
+	const [roomId, setRoomId] = useState<string>("");
+	const [user, setUser] = useUser<User>(defaultUser);
+
+	const createUser = () => {
+		setUser({
+			id: uuidV4(),
+			name,
+		});
+	};
+
+	const createRoom = async (): Promise<void> => {
+		try {
+			//
+		} catch (err: any) {
+			console.error(err.message);
+		}
+	};
+
+	const joinRoom = async (): Promise<void> => {
+		try {
+			//
+		} catch (err: any) {
+			console.error(err.message);
+		}
+	};
+
 	return (
 		<>
 			<header>
 				<h1>Tic Tac Toe</h1>
 			</header>
 			<section>
+				<span className="error"></span>
+				{user.name !== "" ? (
+					<h2>Hello, {user.name}</h2>
+				) : (
+					<div>
+						<label htmlFor="">Name</label>
+						<input
+							type="text"
+							placeholder="eg: ABC"
+							value={name}
+							onChange={e => setName(e.target.value)}
+						/>
+						<button onClick={createUser}>Submit</button>
+					</div>
+				)}
 				<div>
-					<label htmlFor="">Name</label>
-					<input type="text" placeholder="eg: ABC" />
-					<button>Submit</button>
+					<h3>Join Room</h3>
+					<label htmlFor="">Enter Room ID</label>
+					<input
+						type="text"
+						placeholder="eg: "
+						value={roomId}
+						onChange={e => setRoomId(e.target.value)}
+					/>
+					<button onClick={joinRoom}>Join Room</button>
 				</div>
 				<div>
-					<label htmlFor="">Join Room</label>
-					<input type="text" placeholder="eg: " />
-					<button>Join Room</button>
-				</div>
-				<div>
-					<button>Create Room</button>
+					<h3>Create New Room</h3>
+					<button onClick={createRoom}>Create Room</button>
 				</div>
 			</section>
 		</>
