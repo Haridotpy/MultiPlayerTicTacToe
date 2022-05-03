@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useUser } from "../hooks/useUser";
 import { v4 as uuidV4 } from "uuid";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 
 interface User {
 	id: string;
@@ -18,6 +19,8 @@ const App = () => {
 	const [name, setName] = useState<string>("");
 	const [roomId, setRoomId] = useState<string>("");
 	const [user, setUser] = useUser<User>(defaultUser);
+	const [error, setError] = useState<string>("");
+	const navigate: NavigateFunction = useNavigate();
 
 	const createUser = () => {
 		setUser({
@@ -32,8 +35,8 @@ const App = () => {
 				method: "POST",
 				body: JSON.stringify(user),
 			});
-			const { roomId }: { message: string; roomId: string } = await response.json();
-			console.log(roomId);
+			const { roomId: rID }: { message: string; roomId: string } = await response.json();
+			navigate(`/room/${rID}`);
 		} catch (err: any) {
 			console.error(err.message);
 		}
@@ -41,7 +44,16 @@ const App = () => {
 
 	const joinRoom = async (): Promise<void> => {
 		try {
-			//
+			const response = await fetch(`${endPoint}/join-room/${roomId}`, {
+				method: "POST",
+				body: JSON.stringify(user),
+			});
+			const data = await response.json();
+			if (!response.ok) {
+				const { error: e } = data;
+				return setError(e);
+			}
+			navigate(`/room/${roomId}`);
 		} catch (err: any) {
 			console.error(err.message);
 		}
@@ -53,7 +65,7 @@ const App = () => {
 				<h1>Tic Tac Toe</h1>
 			</header>
 			<section>
-				<span className="error"></span>
+				{error && <span className="error">{error}</span>}
 				{user.name !== "" ? (
 					<h2>Hello, {user.name}</h2>
 				) : (
@@ -73,7 +85,7 @@ const App = () => {
 					<label htmlFor="">Enter Room ID</label>
 					<input
 						type="text"
-						placeholder="eg: "
+						placeholder="eg: fjB1P79Z"
 						value={roomId}
 						onChange={e => setRoomId(e.target.value)}
 					/>
