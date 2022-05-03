@@ -4,7 +4,7 @@ interface Props {
 	children: React.PropsWithChildren<React.ReactNode>;
 }
 
-const defaultBoard: string[] = [];
+const defaultBoard: string[] = Array.from<string>({ length: 9 }).fill("");
 
 const BoardContext = createContext<string[]>(defaultBoard);
 

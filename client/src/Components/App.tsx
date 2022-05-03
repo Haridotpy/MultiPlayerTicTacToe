@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "../hooks/useUser";
 import { v4 as uuidV4 } from "uuid";
 import { NavigateFunction, useNavigate } from "react-router-dom";
@@ -67,35 +67,39 @@ const App = () => {
 	return (
 		<>
 			<section>
-				{error && <span className="error">{error}</span>}
-				{user.name !== "" ? (
-					<h2>Hello, {user.name}</h2>
-				) : (
-					<div>
-						<label htmlFor="">Name</label>
-						<input
-							type="text"
-							placeholder="eg: ABC"
-							value={name}
-							onChange={e => setName(e.target.value)}
-						/>
-						<button onClick={createUser}>Submit</button>
+				<div>
+					{error && <span className="error">{error}</span>}
+					{user.name !== "" ? (
+						<h2 className="center">Hello, {user.name}</h2>
+					) : (
+						<div className="input-group">
+							<label htmlFor="">Name</label>
+							<input
+								type="text"
+								placeholder="eg: ABC"
+								value={name}
+								onChange={e => setName(e.target.value)}
+							/>
+							<button onClick={createUser}>Submit</button>
+						</div>
+					)}
+					<div className="input-container">
+						<div className="input-group">
+							<h3 className="center">Join Room</h3>
+							<label htmlFor="">Enter Room ID</label>
+							<input
+								type="text"
+								placeholder="eg: fjB1P79Z"
+								value={roomId}
+								onChange={e => setRoomId(e.target.value)}
+							/>
+							<button onClick={joinRoom}>Join Room</button>
+						</div>
+						<div className="input-group">
+							<h3 className="center">Create New Room</h3>
+							<button onClick={createRoom}>Create Room</button>
+						</div>
 					</div>
-				)}
-				<div>
-					<h3>Join Room</h3>
-					<label htmlFor="">Enter Room ID</label>
-					<input
-						type="text"
-						placeholder="eg: fjB1P79Z"
-						value={roomId}
-						onChange={e => setRoomId(e.target.value)}
-					/>
-					<button onClick={joinRoom}>Join Room</button>
-				</div>
-				<div>
-					<h3>Create New Room</h3>
-					<button onClick={createRoom}>Create Room</button>
 				</div>
 			</section>
 		</>
