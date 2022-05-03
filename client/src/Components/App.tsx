@@ -22,6 +22,14 @@ const App = () => {
 	const [error, setError] = useState<string>("");
 	const navigate: NavigateFunction = useNavigate();
 
+	useEffect(() => {
+		return () => {
+			setName("");
+			setRoomId("");
+			setError("");
+		};
+	}, []);
+
 	const createUser = () => {
 		setUser({
 			id: uuidV4(),
