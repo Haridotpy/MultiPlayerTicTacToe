@@ -1,13 +1,13 @@
 import React, { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import App from "./Components/App";
+import { App, Header, Room } from "./Components";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Room from "./Components/Room";
 
 const rootElement = document.querySelector<HTMLDivElement>("#App")!;
 
 ReactDOM.createRoot(rootElement).render(
 	<StrictMode>
+		<Header />
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={<App />} />

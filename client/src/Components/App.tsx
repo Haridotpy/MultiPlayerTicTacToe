@@ -43,6 +43,11 @@ const App = () => {
 	};
 
 	const joinRoom = async (): Promise<void> => {
+		setError("");
+		if (!roomId) {
+			setError("Please enter a valid Room ID");
+			return;
+		}
 		try {
 			const response = await fetch(`${endPoint}/join-room/${roomId}`, {
 				method: "POST",
@@ -61,9 +66,6 @@ const App = () => {
 
 	return (
 		<>
-			<header>
-				<h1>Tic Tac Toe</h1>
-			</header>
 			<section>
 				{error && <span className="error">{error}</span>}
 				{user.name !== "" ? (
