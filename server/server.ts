@@ -26,6 +26,21 @@ app.post("/create-room", (req: Request, res: Response) => {
 	});
 });
 
+app.post("/join-room/:roomId", (req: Request, res: Response) => {
+	const { roomId } = req.params as { roomId: string };
+	const { name, id } = req.body as { name: string; id: string };
+
+	if (!rooms.hasOwnProperty(roomId)) {
+		return res.status(404).json({
+			error: `Cannot find the room with id ${roomId}`,
+		});
+	}
+	rooms[roomId] = { ...rooms[roomId], [id]: { name, turn: "y" } };
+	res.status(200).json({
+		message: "Successfully joined room",
+	});
+});
+
 httpServer.listen(5000, () => {
 	console.log("Server started on port 5000");
 });
