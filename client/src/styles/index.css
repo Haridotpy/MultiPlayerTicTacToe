@@ -1,6 +1,6 @@
 :root {
   --cell-height: 150px;
-  --mark-size: calc(var(--cell-height) * .8);
+  --mark-size: calc(var(--cell-height) * .5);
 }
 
 * {
@@ -42,6 +42,9 @@ section {
 .cell {
   height: var(--cell-height);
   border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cell:nth-child(1),
@@ -66,6 +69,46 @@ section {
 .cell:nth-child(6),
 .cell:nth-child(9) {
   border-right: none;
+}
+
+.x::before,
+.x::after {
+  content: "";
+  height: var(--mark-size);
+  width: 10px;
+  background-color: black;
+  position: absolute;
+}
+
+.x::before {
+  transform: rotate(-45deg);
+}
+
+.x::after {
+  transform: rotate(45deg);
+}
+
+.o::before,
+.o:after {
+  content: "";
+  height: var(--mark-size);
+  border-radius: 50%;
+  position: absolute;
+}
+
+.o:before {
+  width: var(--mark-size);
+  background-color: black;
+}
+
+.o:after {
+  height: calc(var(--mark-size) * .7);
+  width: calc(var(--mark-size) * .7);
+  background-color: white;
+}
+
+.disable {
+  cursor: not-allowed;
 }
 
 @media (max-width: 550px) {

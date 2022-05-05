@@ -1,5 +1,5 @@
-import React from "react";
+import App from "./App";
+import Header from "./Header";
+import Room from "./Room";
 
-export const Header = React.lazy(() => import("../Components/Header"));
-export const App = React.lazy(() => import("../Components/App"));
-export const Room = React.lazy(() => import("../Components/Room"));
+export { App, Header, Room };
