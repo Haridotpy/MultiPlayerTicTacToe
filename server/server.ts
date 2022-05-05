@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { createServer, Server } from "http";
 import { nanoid } from "nanoid";
 import cors from "cors";
+import { Server as SocketServer, Socket } from "socket.io";
 
 const app = express();
 const httpServer: Server = createServer(app);
@@ -38,6 +39,24 @@ app.post("/join-room/:roomId", (req: Request, res: Response) => {
 	rooms[roomId] = { ...rooms[roomId], [id]: { name, turn: "y" } };
 	res.status(200).json({
 		message: "Successfully joined room",
+	});
+});
+
+const io = new SocketServer(httpServer, {
+	cors: CORS_OPTION,
+});
+
+io.on("connection", (socket: Socket) => {
+	const { user, roomId } = socket.handshake.auth;
+
+	if (!rooms[roomId]) {
+		return io.emit("connect-err", "Room does exits!");
+	}
+
+	socket.join(roomId);
+
+	socket.on("disconnect", () => {
+		console.log("socket disconnected!");
 	});
 });
 
