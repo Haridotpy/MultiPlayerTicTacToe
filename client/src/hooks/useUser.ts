@@ -1,13 +1,23 @@
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
 
-const getUser = <T>(initial: T): T => {
+interface User {
+	id: string;
+	name: string;
+}
+
+const defaultUser = {
+	id: "",
+	name: "",
+};
+
+const getUser = (initial: User = defaultUser): User => {
 	const u = localStorage.getItem("user");
 	if (!u) return initial;
 	return JSON.parse(u);
 };
 
-export const useUser = <T>(initial: T): [T, Dispatch<SetStateAction<T>>] => {
-	const [user, setUser] = useState<T>(() => getUser<T>(initial));
+export const useUser = (): [User, Dispatch<SetStateAction<User>>] => {
+	const [user, setUser] = useState<User>(() => getUser());
 
 	useEffect(() => {
 		localStorage.setItem("user", JSON.stringify(user));
