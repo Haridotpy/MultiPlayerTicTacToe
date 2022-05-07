@@ -1,9 +1,5 @@
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
-
-interface User {
-	id: string;
-	name: string;
-}
+import { User } from "../types/types";
 
 const defaultUser = {
 	id: "",

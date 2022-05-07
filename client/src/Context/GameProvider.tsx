@@ -4,21 +4,10 @@ import { useUser } from "../hooks/useUser";
 import { isDraw, isWin } from "../utils";
 import { io, Socket } from "socket.io-client";
 import { useTimeout } from "../hooks/useTimeout";
+import { GameContextType } from "../types/types";
 
 interface Props {
 	children: React.PropsWithChildren<React.ReactNode>;
-}
-
-interface GameContextType {
-	board: string[];
-	currentTurn: string;
-	roomId: string;
-	message: string;
-	result: string;
-	hasEnded: boolean;
-	loading: boolean;
-	isYourTurn: boolean;
-	play: (pos: number, turn: string) => void;
 }
 
 const defaultBoard: string[] = Array.from<string>({ length: 9 }).fill("");
@@ -40,14 +29,14 @@ const endpoit = process.env.REACT_APP_API_ENDPOINT! as string;
 export const useGame = (): GameContextType => useContext(GameContext);
 
 export const GameProvider = ({ children }: Props) => {
-	const [board, setBoard] = useState<string[]>(defaultBoard);
 	const [currentTurn, setCurrentTurn] = useState<string>("x");
-	const [mark, setMark] = useState<string>("");
-	const [end, setEnd] = useState<boolean>(false);
+	const [board, setBoard] = useState<string[]>(defaultBoard);
+	const [socket, setSocket] = useState<Socket | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>("");
-	const [socket, setSocket] = useState<Socket | null>(null);
 	const [result, setResult] = useState<string>("");
+	const [end, setEnd] = useState<boolean>(false);
+	const [mark, setMark] = useState<string>("");
 	const navigate = useNavigate();
 	const params = useParams();
 	const [user] = useUser();
