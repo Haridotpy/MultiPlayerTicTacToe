@@ -41,6 +41,9 @@ const App = () => {
 		try {
 			const response = await fetch(`${endPoint}/create-room`, {
 				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
 				body: JSON.stringify(user),
 			});
 			const { roomId: rID }: { message: string; roomId: string } = await response.json();
@@ -59,6 +62,9 @@ const App = () => {
 		try {
 			const response = await fetch(`${endPoint}/join-room/${roomId}`, {
 				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
 				body: JSON.stringify(user),
 			});
 			const data = await response.json();
