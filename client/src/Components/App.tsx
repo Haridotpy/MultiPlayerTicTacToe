@@ -18,7 +18,7 @@ const endPoint = process.env.REACT_APP_API_ENDPOINT;
 const App = () => {
 	const [name, setName] = useState<string>("");
 	const [roomId, setRoomId] = useState<string>("");
-	const [user, setUser] = useUser<User>(defaultUser);
+	const [user, setUser] = useUser();
 	const [error, setError] = useState<string>("");
 	const navigate: NavigateFunction = useNavigate();
 

@@ -3,6 +3,7 @@ import { createServer, Server } from "http";
 import { nanoid } from "nanoid";
 import cors from "cors";
 import { Server as SocketServer, Socket } from "socket.io";
+import { Player, Room } from "./types/types";
 
 const app = express();
 const httpServer: Server = createServer(app);
@@ -11,7 +12,7 @@ const CORS_OPTION = {
 	origin: process.env.CLIENT_URI,
 };
 
-const rooms: any = {};
+const rooms: Room[] = [];
 
 app.use(cors(CORS_OPTION));
 app.use(express.json());
@@ -19,7 +20,19 @@ app.use(express.json());
 app.post("/create-room", (req: Request, res: Response) => {
 	const { id, name } = req.body as { id: string; name: string };
 	const roomId: string = nanoid(8);
-	rooms[roomId] = { [id]: { name, turn: "x" } };
+
+	const player: Player = {
+		id,
+		name,
+		turn: "x",
+	};
+
+	const newRoom: Room = {
+		id: roomId,
+		players: [player],
+	};
+
+	rooms.push(newRoom);
 
 	res.status(201).json({
 		message: "Successfully created room",
@@ -31,12 +44,15 @@ app.post("/join-room/:roomId", (req: Request, res: Response) => {
 	const { roomId } = req.params as { roomId: string };
 	const { name, id } = req.body as { name: string; id: string };
 
-	if (!rooms.hasOwnProperty(roomId)) {
+	const room = rooms.find(r => r.id === roomId);
+	if (!room) {
 		return res.status(404).json({
-			error: `Cannot find the room with id ${roomId}`,
+			error: "Cannot find a room with the id" + roomId,
 		});
 	}
-	rooms[roomId] = { ...rooms[roomId], [id]: { name, turn: "y" } };
+
+	room.players.push({ id, name, turn: "o" });
+
 	res.status(200).json({
 		message: "Successfully joined room",
 	});
@@ -49,11 +65,17 @@ const io = new SocketServer(httpServer, {
 io.on("connection", (socket: Socket) => {
 	const { user, roomId } = socket.handshake.auth;
 
-	if (!rooms[roomId]) {
+	if (!getRoom(roomId)) {
 		return io.emit("connect-err", "Room does exits!");
 	}
 
 	socket.join(roomId);
+
+	io.to(socket.id).emit("turn", getTurn(roomId, user.id));
+
+	io.to(socket.id).emit("opponent", getOpponent(roomId, user.id));
+
+	socket.to(roomId).emit("player-joined", { user, turn: getTurn(roomId, user.id) });
 
 	socket.on("disconnect", () => {
 		console.log("socket disconnected!");
@@ -63,3 +85,17 @@ io.on("connection", (socket: Socket) => {
 httpServer.listen(5000, () => {
 	console.log("Server started on port 5000");
 });
+
+function getRoom(roomId: string): Room | undefined {
+	return rooms.find(room => room.id === roomId);
+}
+
+function getTurn(roomId: string, playerId: string): string | undefined {
+	const room = getRoom(roomId);
+	return room?.players.find(player => player.id === playerId)?.turn;
+}
+
+function getOpponent(roomId: string, playerId: string): Player | undefined {
+	const room = getRoom(roomId);
+	return room?.players.filter(player => player.id !== playerId)[0];
+}
