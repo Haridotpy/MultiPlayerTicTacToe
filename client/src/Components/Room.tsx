@@ -9,7 +9,7 @@ const Room = () => {
 	const params: RouterParams = useParams();
 	const { roomId } = params;
 	const navigate = useNavigate();
-	const { result, message, loading } = useGame();
+	const { message, loading } = useGame();
 
 	const leaveRoom = () => {
 		navigate("/");
@@ -22,7 +22,6 @@ const Room = () => {
 			) : (
 				<>
 					<h4 className="center">Room ID: {roomId}</h4>
-					{result && <h4 className="center">{result}</h4>}
 					{message && <h4 className="center">{message}</h4>}
 					<section>
 						<Board />

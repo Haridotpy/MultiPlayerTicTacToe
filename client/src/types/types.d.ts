@@ -3,10 +3,9 @@ export interface GameContextType {
 	currentTurn: string;
 	roomId: string;
 	message: string;
-	result: string;
 	hasEnded: boolean;
 	loading: boolean;
-	isYourTurn: boolean;
+	disableBoard: boolean;
 	play: (pos: number, turn: string) => void;
 }
 
@@ -15,7 +14,6 @@ export interface User {
 	name: string;
 }
 
-export interface Opponent {
-	user: User;
+export interface Opponent extends User {
 	turn: string;
 }

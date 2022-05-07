@@ -1,10 +1,10 @@
-import React, { useState, createContext, useContext, useEffect } from "react";
+import React, { useState, createContext, useContext, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import { isDraw, isWin } from "../utils";
 import { io, Socket } from "socket.io-client";
 import { useTimeout } from "../hooks/useTimeout";
-import { GameContextType } from "../types/types";
+import { GameContextType, Opponent } from "../types/types";
 
 interface Props {
 	children: React.PropsWithChildren<React.ReactNode>;
@@ -18,9 +18,8 @@ const GameContext = createContext<GameContextType>({
 	hasEnded: false,
 	roomId: "",
 	message: "",
-	result: "",
 	loading: false,
-	isYourTurn: false,
+	disableBoard: true,
 	play: (pos: number, turn: string) => void 0,
 });
 
@@ -29,12 +28,12 @@ const endpoit = process.env.REACT_APP_API_ENDPOINT! as string;
 export const useGame = (): GameContextType => useContext(GameContext);
 
 export const GameProvider = ({ children }: Props) => {
+	const [opponent, setOpponent] = useState<Opponent | null>(null);
 	const [currentTurn, setCurrentTurn] = useState<string>("x");
 	const [board, setBoard] = useState<string[]>(defaultBoard);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>("");
-	const [result, setResult] = useState<string>("");
 	const [end, setEnd] = useState<boolean>(false);
 	const [mark, setMark] = useState<string>("");
 	const navigate = useNavigate();
@@ -42,6 +41,7 @@ export const GameProvider = ({ children }: Props) => {
 	const [user] = useUser();
 
 	const isYourTurn = mark === currentTurn;
+	const disableBoard: boolean = !isYourTurn || opponent === null || end;
 
 	const { roomId } = params as { roomId: string };
 
@@ -77,6 +77,13 @@ export const GameProvider = ({ children }: Props) => {
 		};
 	}, []);
 
+	const updateBoard = useCallback(
+		(pos: number, turn: string) => {
+			return board.map((cell: string, idx: number) => (idx === pos ? turn : cell));
+		},
+		[board]
+	);
+
 	useEffect(() => {
 		if (!socket) return;
 
@@ -84,32 +91,50 @@ export const GameProvider = ({ children }: Props) => {
 			setMark(turn);
 		});
 
+		socket.on("player-joined", (player: Opponent) => {
+			setOpponent(player);
+			setMessage(`${player.name} Joined`);
+		});
+
+		socket.on("opponent", (player: Opponent) => {
+			setOpponent(player);
+		});
+
+		socket.on("played", (pos, turn) => {
+			setBoard(updateBoard(pos, turn));
+			setCurrentTurn(turn === "x" ? "o" : "x");
+		});
+
+		socket.on("player-disconnected", (name: string) => {
+			setMessage(name);
+		});
+
 		return () => {
 			socket.off("turn");
+			socket.off("player-joined");
+			socket.off("opponent");
+			socket.off("player-disconnected");
 		};
-	}, [socket]);
-
-	const updateBoard = (board: string[], pos: number, turn: string) => {
-		return board.map((cell: string, idx: number) => (idx === pos ? turn : cell));
-	};
+	}, [socket, updateBoard]);
 
 	const play = (pos: number, turn: string): void => {
-		if (end || !!board[pos] || !isYourTurn) return;
+		if (!!board[pos] || disableBoard) return;
 
-		const updatedBoard = updateBoard(board, pos, turn);
+		socket?.emit("play", pos, turn);
+
+		const updatedBoard = updateBoard(pos, turn);
 		setBoard(updatedBoard);
 
-		console.log(updatedBoard);
-
 		if (isDraw(updatedBoard)) {
+			socket?.emit("end", "Draw!!");
 			setEnd(true);
-			setResult("Draw!!");
 			return;
 		}
 
 		if (isWin(updatedBoard, currentTurn)) {
+			socket?.emit("end", `${currentTurn.toUpperCase()} Wins`);
 			setEnd(true);
-			setResult(`${turn.toUpperCase()} Wins!`);
+			return;
 		}
 
 		setCurrentTurn(prev => (prev === "x" ? "o" : "x"));
@@ -124,9 +149,8 @@ export const GameProvider = ({ children }: Props) => {
 				hasEnded: end,
 				roomId,
 				message,
-				result,
 				loading,
-				isYourTurn,
+				disableBoard,
 			}}
 		>
 			{children}
