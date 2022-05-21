@@ -9,7 +9,7 @@ const app = express();
 const httpServer: Server = createServer(app);
 
 const CORS_OPTION = {
-	origin: process.env.CLIENT_URI,
+	origin: process.env.CLIENT_URI
 };
 
 const rooms: Room[] = [];
@@ -24,19 +24,19 @@ app.post("/create-room", (req: Request, res: Response) => {
 	const player: Player = {
 		id,
 		name,
-		turn: "x",
+		turn: "x"
 	};
 
 	const newRoom: Room = {
 		id: roomId,
-		players: [player],
+		players: [player]
 	};
 
 	rooms.push(newRoom);
 
 	res.status(201).json({
 		message: "Successfully created room",
-		roomId,
+		roomId
 	});
 });
 
@@ -47,19 +47,19 @@ app.post("/join-room/:roomId", (req: Request, res: Response) => {
 	const room = rooms.find(r => r.id === roomId);
 	if (!room) {
 		return res.status(404).json({
-			error: "Cannot find a room with the id" + roomId,
+			error: "Cannot find a room with the id" + roomId
 		});
 	}
 
 	room.players.push({ id, name, turn: "o" });
 
 	res.status(200).json({
-		message: "Successfully joined room",
+		message: "Successfully joined room"
 	});
 });
 
 const io = new SocketServer(httpServer, {
-	cors: CORS_OPTION,
+	cors: CORS_OPTION
 });
 
 io.on("connection", (socket: Socket) => {
@@ -75,10 +75,19 @@ io.on("connection", (socket: Socket) => {
 
 	io.to(socket.id).emit("opponent", getOpponent(roomId, user.id));
 
-	socket.to(roomId).emit("player-joined", { user, turn: getTurn(roomId, user.id) });
+	socket.to(roomId).emit("player-joined", { ...user, turn: getTurn(roomId, user.id) });
+
+	socket.on("play", (pos, turn) => {
+		socket.broadcast.to(roomId).emit("played", pos, turn);
+	});
+
+	socket.on("stop", msg => {
+		socket.emit("end", msg);
+	});
 
 	socket.on("disconnect", () => {
-		console.log("socket disconnected!");
+		leaveRoom(roomId, user.id);
+		socket.emit("player-disconnected", user.name);
 	});
 });
 
@@ -98,4 +107,16 @@ function getTurn(roomId: string, playerId: string): string | undefined {
 function getOpponent(roomId: string, playerId: string): Player | undefined {
 	const room = getRoom(roomId);
 	return room?.players.filter(player => player.id !== playerId)[0];
+}
+
+function leaveRoom(roomId: string, playerId: string) {
+	const room = getRoom(roomId);
+
+	if (!room) return;
+	room.players = room.players.filter(player => player.id !== playerId);
+
+	if (room.players.length <= 0) {
+		let index = rooms.findIndex(room => room.id === roomId);
+		rooms.splice(index, 1);
+	}
 }
