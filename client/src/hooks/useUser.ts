@@ -1,9 +1,9 @@
-import { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, Dispatch, SetStateAction, useMemo } from "react";
 import { User } from "../types/types";
 
 const defaultUser = {
 	id: "",
-	name: "",
+	name: ""
 };
 
 const getUser = (initial: User = defaultUser): User => {
@@ -12,12 +12,20 @@ const getUser = (initial: User = defaultUser): User => {
 	return JSON.parse(u);
 };
 
-export const useUser = (): [User, Dispatch<SetStateAction<User>>] => {
+export default (): [User, Dispatch<SetStateAction<User>>] => {
 	const [user, setUser] = useState<User>(() => getUser());
 
 	useEffect(() => {
 		localStorage.setItem("user", JSON.stringify(user));
 	}, [user]);
 
-	return [user, setUser];
+	const currentUser = useMemo<User>(
+		() => ({
+			id: user.id,
+			name: user.name
+		}),
+		[user.id, user.name]
+	);
+
+	return [currentUser, setUser];
 };

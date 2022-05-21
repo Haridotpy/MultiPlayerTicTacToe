@@ -4,17 +4,15 @@ interface TimeoutFuncType {
 	(): void;
 }
 
-export const useTimeout = (cb: TimeoutFuncType, timeout: number, dependency?: any[]) => {
+export default (cb: TimeoutFuncType, timeout: number, dependency: any): void => {
 	useEffect(() => {
-		if (dependency) {
-			for (let dep of dependency) {
-				if (!dep) return;
-			}
+		if (!dependency) {
+			return;
 		}
 		const time = setTimeout(cb, timeout);
 
 		return () => {
 			clearInterval(time);
 		};
-	}, dependency || []);
+	}, [cb, timeout, dependency]);
 };

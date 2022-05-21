@@ -6,7 +6,7 @@ export interface GameContextType {
 	hasEnded: boolean;
 	loading: boolean;
 	disableBoard: boolean;
-	play: (pos: number, turn: string) => void;
+	play(pos: number, turn: string): void;
 }
 
 export interface User {

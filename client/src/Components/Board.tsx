@@ -10,7 +10,10 @@ const Board = () => {
 				<Cell
 					key={idx}
 					mark={mark}
-					onClick={() => play(idx, currentTurn)}
+					onClick={() => {
+						if (disableBoard) return;
+						play(idx, currentTurn);
+					}}
 					disabled={disableBoard}
 				/>
 			))}
