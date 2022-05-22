@@ -91,8 +91,8 @@ io.on("connection", (socket: Socket) => {
 	});
 });
 
-httpServer.listen(5000, () => {
-	console.log("Server started on port 5000");
+httpServer.listen(process.env.PORT, () => {
+	console.log(`Server started on port ${process.env.PORT}`);
 });
 
 function getRoom(roomId: string): Room | undefined {
