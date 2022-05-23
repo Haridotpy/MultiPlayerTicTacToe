@@ -9,7 +9,6 @@ const rootElement = document.querySelector<HTMLDivElement>("#App")!;
 
 ReactDOM.createRoot(rootElement).render(
 	<StrictMode>
-		<Header />
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={<App />} />
