@@ -1,6 +1,6 @@
-import React, { StrictMode } from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { App, Header, Room } from "./Components";
+import { App, Room } from "./Components";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GameProvider } from "./Context/GameProvider";
 import "./styles/index.css";
