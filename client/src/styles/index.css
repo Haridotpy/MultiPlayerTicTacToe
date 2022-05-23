@@ -109,6 +109,7 @@ input {
 .btn-primary {
   background-color: var(--color-btn-primary-background);
   color: var(--color-btn-primary-text);
+  border: 1px solid var(--color-btn-primary-background);
   border-radius: 5px;
   padding: 8px;
   font-weight: bold;
@@ -123,6 +124,7 @@ input {
 .btn-danger {
   background-color: var(--color-btn-danger-background);
   color: var(--color-btn-danger-text);
+  border: 1px solid var(--color-btn-danger-background);
   cursor: pointer;
   font-weight: bold;
   padding: 8px;
