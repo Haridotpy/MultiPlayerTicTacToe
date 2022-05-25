@@ -47,7 +47,7 @@ app.post("/join-room/:roomId", (req: Request, res: Response) => {
 	const room = rooms.find(r => r.id === roomId);
 	if (!room) {
 		return res.status(404).json({
-			error: "Cannot find a room with the id" + roomId
+			error: "Cannot find a room with the id " + roomId
 		});
 	}
 
