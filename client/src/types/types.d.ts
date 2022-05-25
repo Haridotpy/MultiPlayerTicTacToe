@@ -6,6 +6,8 @@ export interface GameContextType {
 	hasEnded: boolean;
 	loading: boolean;
 	disableBoard: boolean;
+	mark: string;
+	opponent: Opponent | null;
 	play(pos: number, turn: string): void;
 }
 

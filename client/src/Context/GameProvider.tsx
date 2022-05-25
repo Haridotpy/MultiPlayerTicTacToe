@@ -20,6 +20,8 @@ const GameContext = createContext<GameContextType>({
 	message: "",
 	loading: false,
 	disableBoard: true,
+	mark: "",
+	opponent: null,
 	play: (): void => {}
 });
 
@@ -92,14 +94,14 @@ export const GameProvider = ({ children }: Props) => {
 			const updatedBoard = updateBoard(pos, turn);
 			setBoard(updatedBoard);
 
-			if (isDraw(updatedBoard)) {
-				socket?.emit("stop", "Draw!!");
+			if (isWin(updatedBoard, currentTurn)) {
+				socket?.emit("stop", `${currentTurn.toUpperCase()} Wins`);
 				setEnd(true);
 				return;
 			}
 
-			if (isWin(updatedBoard, currentTurn)) {
-				socket?.emit("stop", `${currentTurn.toUpperCase()} Wins`);
+			if (isDraw(updatedBoard)) {
+				socket?.emit("stop", "Draw!!");
 				setEnd(true);
 				return;
 			}
@@ -112,8 +114,6 @@ export const GameProvider = ({ children }: Props) => {
 
 	useEffect(() => {
 		if (!socket) return;
-
-		console.log("Listening for events");
 
 		socket.on("turn", turn => {
 			setMark(turn);
@@ -154,6 +154,8 @@ export const GameProvider = ({ children }: Props) => {
 		() => ({
 			board,
 			play,
+			opponent,
+			mark,
 			currentTurn,
 			hasEnded: end,
 			roomId,
@@ -161,7 +163,7 @@ export const GameProvider = ({ children }: Props) => {
 			loading,
 			disableBoard
 		}),
-		[board, play, currentTurn, end, roomId, message, loading, disableBoard]
+		[board, play, currentTurn, end, roomId, message, loading, disableBoard, opponent, mark]
 	);
 
 	return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

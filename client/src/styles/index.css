@@ -3,7 +3,7 @@
 :root {
   --cell-height: 150px;
   --mark-size: calc(var(--cell-height) * .5);
-  --base-color-hue: 210;
+  --base-color-hue: 215;
   --danger-color-offset: 180;
   --danger-color-hue: calc(var(--base-color-hue) - var(--danger-color-offset));
   --background-color-dark: hsl(var(--base-color-hue), 100%, 8%);
@@ -70,6 +70,10 @@ input {
   border-radius: 5px;
 }
 
+input:disabled {
+  opacity: 0.6;
+}
+
 .center {
   text-align: center;
   display: flex;
@@ -92,6 +96,18 @@ input {
   justify-content: center;
 }
 
+.btn {
+  padding: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .btn-round {
   height: 60px;
   width: 60px;
@@ -111,9 +127,6 @@ input {
   color: var(--color-btn-primary-text);
   border: 1px solid var(--color-btn-primary-background);
   border-radius: 5px;
-  padding: 8px;
-  font-weight: bold;
-  cursor: pointer;
   transition: 0.2s ease-in-out;
 }
 
@@ -125,9 +138,6 @@ input {
   background-color: var(--color-btn-danger-background);
   color: var(--color-btn-danger-text);
   border: 1px solid var(--color-btn-danger-background);
-  cursor: pointer;
-  font-weight: bold;
-  padding: 8px;
   transition: 0.2s ease-in-out;
 }
 
@@ -183,9 +193,9 @@ input {
 
 .o::before {
   content: "";
-  height: calc(var(--mark-size) / 1.2);
+  height: calc(var(--mark-size) / 1.5);
   position: absolute;
-  width: calc(var(--mark-size) / 1.2);
+  width: calc(var(--mark-size) / 1.5);
   border: 10px solid var(--color-text-light);
   border-radius: 100px;
 }
@@ -197,11 +207,53 @@ input {
 .monospace {
   font-family: monospace;
   font-size: 20px;
+  letter-spacing: 1.1px;
+  padding-bottom: 20px;
 }
 
 .flip-x {
   transform: rotate(180deg);
   padding: 0;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem; 
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.player-x::before,
+.player-x::after {
+  content: "";
+  height: 25px;
+  width: 5px;
+  background-color: var(--color-text-light);
+  position: absolute;
+  border-radius: 5px;
+  bottom: 1%;
+}
+
+.player-x::before {
+  transform: rotate(-45deg);
+}
+
+.player-x::after {
+  transform: rotate(45deg);
+}
+
+.player-o {
+  height: 25px;
+  width: 25px;
+  border: 5px solid var(--color-text-light);
+  border-radius: 100%;
 }
 
 @media (max-width: 550px) {

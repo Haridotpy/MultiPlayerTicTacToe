@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import { v4 as uuidV4 } from "uuid";
 import useUser from "../hooks/useUser";
@@ -28,7 +28,9 @@ const App = () => {
 		});
 	};
 
-	const createRoom = async (): Promise<void> => {
+	const createRoom = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+		const buttonElement = e.target as HTMLElement;
+		buttonElement.innerText = "Creating...";
 		try {
 			const response = await fetch(`${endPoint}/create-room`, {
 				method: "POST",
@@ -40,14 +42,18 @@ const App = () => {
 			const { roomId: rID }: { message: string; roomId: string } = await response.json();
 			navigate(`/room/${rID}`);
 		} catch (err: any) {
+			buttonElement.innerText = "Create Room";
 			console.error(err.message);
 		}
 	};
 
-	const joinRoom = async (): Promise<void> => {
+	const joinRoom = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
 		setError("");
+		const buttonElement = e.target as HTMLElement;
+		buttonElement.innerText = "Joining...";
 		if (!roomId) {
 			setError("Please enter a valid Room ID");
+			buttonElement.innerText = "Join Room";
 			return;
 		}
 		try {
@@ -61,10 +67,12 @@ const App = () => {
 			const data = await response.json();
 			if (!response.ok) {
 				const { error: e } = data;
+				buttonElement.innerText = "Join Room";
 				return setError(e);
 			}
 			navigate(`/room/${roomId}`);
 		} catch (err: any) {
+			buttonElement.innerText = "Join Room";
 			console.error(err.message);
 		}
 	};
@@ -88,7 +96,7 @@ const App = () => {
 									value={name}
 									onChange={e => setName(e.target.value)}
 								/>
-								<button onClick={createUser} className="btn-primary">
+								<button onClick={createUser} className="btn btn-primary">
 									Submit
 								</button>
 							</div>
@@ -103,14 +111,15 @@ const App = () => {
 								placeholder="eg: fjB1P79Z"
 								value={roomId}
 								onChange={e => setRoomId(e.target.value)}
+								disabled={!user.name}
 							/>
-							<button className="btn-primary" onClick={joinRoom}>
+							<button className="btn btn-primary" disabled={!user.name} onClick={joinRoom}>
 								Join Room
 							</button>
 						</div>
 						<div className="input-group">
 							<h3 className="center">Create New Room</h3>
-							<button className="btn-primary" onClick={createRoom}>
+							<button className="btn btn-primary" disabled={!user.name} onClick={createRoom}>
 								Create Room
 							</button>
 						</div>
