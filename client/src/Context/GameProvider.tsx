@@ -132,12 +132,12 @@ export const GameProvider = ({ children }: Props) => {
 			play(pos, turn);
 		});
 
-		socket.on("player-disconnected", (name: string) => {
-			setMessage(name);
-		});
-
 		socket.on("end", (msg: string) => {
 			setMessage(msg);
+		});
+
+		socket.on("player-disconnected", (name: string) => {
+			setMessage(`${name} disconnected`);
 		});
 
 		return () => {

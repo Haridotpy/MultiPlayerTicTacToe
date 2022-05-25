@@ -87,7 +87,7 @@ io.on("connection", (socket: Socket) => {
 
 	socket.on("disconnect", () => {
 		leaveRoom(roomId, user.id);
-		socket.emit("player-disconnected", user.name);
+		socket.broadcast.emit("player-disconnected", user.name);
 	});
 });
 
