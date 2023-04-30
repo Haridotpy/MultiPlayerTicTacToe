@@ -3,8 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 import useUser from "../hooks/useUser";
 import { isDraw, isWin } from "../utils";
-import useTimeout from "../hooks/useTimeout";
 import { GameContextType, Opponent } from "../types/types";
+import useTimeout from "../hooks/useTimeout";
 
 interface Props {
 	children: React.PropsWithChildren<React.ReactNode>;
@@ -15,14 +15,16 @@ const defaultBoard: string[] = Array.from<string>({ length: 9 }).fill("");
 const GameContext = createContext<GameContextType>({
 	board: defaultBoard,
 	currentTurn: "",
-	hasEnded: false,
+	hasEnded: true,
 	roomId: "",
 	message: "",
 	loading: false,
 	disableBoard: true,
 	mark: "",
+	winner: "",
 	opponent: null,
-	play: (): void => {}
+	play: (): void => {},
+	restartGame: (): void => {}
 });
 
 const endpoit = process.env.REACT_APP_API_ENDPOINT! as string;
@@ -38,6 +40,7 @@ export const GameProvider = ({ children }: Props) => {
 	const [message, setMessage] = useState<string>("");
 	const [end, setEnd] = useState<boolean>(false);
 	const [mark, setMark] = useState<string>("");
+	const [winner, setWinner] = useState<string>("");
 	const navigate = useNavigate();
 	const params = useParams();
 	const [user] = useUser();
@@ -106,11 +109,24 @@ export const GameProvider = ({ children }: Props) => {
 				return;
 			}
 
-			console.log("Turn", turn);
 			setCurrentTurn(prev => (prev === "x" ? "o" : "x"));
 		},
 		[socket, updateBoard, currentTurn, board]
 	);
+
+	const restartGame = useCallback(() => {
+		if (!socket) return;
+
+		socket.emit("restart", { userId: user.id, roomId });
+		setMark(prev => (prev === "x" ? "o" : "x"));
+		setOpponent(prev => {
+			if (!prev) return prev;
+			return { ...prev, turn: prev.turn === "x" ? "o" : "x" };
+		});
+		setBoard(defaultBoard);
+		setCurrentTurn("x");
+		setEnd(false);
+	}, [socket, user.id, roomId]);
 
 	useEffect(() => {
 		if (!socket) return;
@@ -133,11 +149,19 @@ export const GameProvider = ({ children }: Props) => {
 		});
 
 		socket.on("end", (msg: string) => {
-			setMessage(msg);
+			setWinner(msg);
 		});
 
 		socket.on("player-disconnected", (name: string) => {
 			setMessage(`${name} disconnected`);
+		});
+
+		socket.on("restart", opponent => {
+			setMark(prev => (prev === "x" ? "o" : "x"));
+			setOpponent(opponent);
+			setBoard(defaultBoard);
+			setCurrentTurn("x");
+			setEnd(false);
 		});
 
 		return () => {
@@ -147,6 +171,7 @@ export const GameProvider = ({ children }: Props) => {
 			socket.off("played");
 			socket.off("player-disconnected");
 			socket.off("end");
+			socket.off("restart");
 		};
 	}, [socket, updateBoard, play]);
 
@@ -161,9 +186,24 @@ export const GameProvider = ({ children }: Props) => {
 			roomId,
 			message,
 			loading,
-			disableBoard
+			winner,
+			disableBoard,
+			restartGame
 		}),
-		[board, play, currentTurn, end, roomId, message, loading, disableBoard, opponent, mark]
+		[
+			board,
+			play,
+			currentTurn,
+			end,
+			roomId,
+			message,
+			loading,
+			winner,
+			disableBoard,
+			opponent,
+			mark,
+			restartGame
+		]
 	);
 
 	return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

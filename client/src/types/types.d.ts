@@ -8,7 +8,9 @@ export interface GameContextType {
 	disableBoard: boolean;
 	mark: string;
 	opponent: Opponent | null;
+	winner: string;
 	play(pos: number, turn: string): void;
+	restartGame(): void;
 }
 
 export interface User {

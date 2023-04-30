@@ -4,12 +4,18 @@ import cors from "cors";
 import { Server as SocketServer, Socket } from "socket.io";
 import { Player, Room } from "./types/types";
 import { genRandomString } from "./utils/randomString";
+import { config } from "dotenv";
+
+if (process.env.NODE_ENV !== "production") {
+	config();
+}
 
 const app = express();
 const httpServer: Server = createServer(app);
 
 const CORS_OPTION = {
-	origin: process.env.CLIENT_URI
+	origin: process.env.CLIENT_URI,
+	optionSuccessStatus: 200
 };
 
 const rooms: Room[] = [];
@@ -19,7 +25,7 @@ app.use(express.json());
 
 app.post("/create-room", (req: Request, res: Response) => {
 	const { id, name } = req.body as { id: string; name: string };
-	const roomId: string = genRandomString(8);
+	const roomId: string = genRandomString(6);
 
 	const player: Player = {
 		id,
@@ -85,6 +91,12 @@ io.on("connection", (socket: Socket) => {
 		socket.emit("end", msg);
 	});
 
+	socket.on("restart", ({ roomId, userId }) => {
+		swapTurns(roomId);
+		const opponent = getUser(roomId, userId);
+		socket.broadcast.to(roomId).emit("restart", opponent);
+	});
+
 	socket.on("disconnect", () => {
 		leaveRoom(roomId, user.id);
 		socket.broadcast.emit("player-disconnected", user.name);
@@ -109,6 +121,11 @@ function getOpponent(roomId: string, playerId: string): Player | undefined {
 	return room?.players.filter(player => player.id !== playerId)[0];
 }
 
+function getUser(roomId: string, userId: string) {
+	const room = getRoom(roomId);
+	return room?.players.find(player => player.id === userId);
+}
+
 function leaveRoom(roomId: string, playerId: string) {
 	const room = getRoom(roomId);
 
@@ -119,4 +136,19 @@ function leaveRoom(roomId: string, playerId: string) {
 		let index = rooms.findIndex(room => room.id === roomId);
 		rooms.splice(index, 1);
 	}
+}
+
+function swapTurns(roomId: string) {
+	const room = getRoom(roomId);
+	if (!room) return;
+
+	const { players } = room;
+
+	players.forEach(player => {
+		if (player.turn === "x") {
+			player.turn = "o";
+		} else {
+			player.turn = "x";
+		}
+	});
 }

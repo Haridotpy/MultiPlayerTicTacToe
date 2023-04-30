@@ -2,6 +2,7 @@ import { Params, useParams, useNavigate } from "react-router-dom";
 import Board from "./Board";
 import { useGame } from "../Context/GameProvider";
 import useUser from "../hooks/useUser";
+import Modal from "./Modal";
 
 type RouterParams = Readonly<Params<string>>;
 
@@ -22,6 +23,7 @@ const Room = () => {
 				<h1>Loading....</h1>
 			) : (
 				<>
+					<Modal />
 					<div className="player-info">
 						<div className="player">
 							<div className={`player-${mark}`}></div>
@@ -38,7 +40,7 @@ const Room = () => {
 						<Board />
 					</section>
 					<div>
-						<button className="btn btn-round btn-danger btn-float-bottom-left" onClick={leaveRoom}>
+						<button className="btn btn-danger btn-round btn-float-bottom-left" onClick={leaveRoom}>
 							<i className="fa-solid fa-right-from-bracket fa-xl flip-x"></i>
 						</button>
 					</div>
