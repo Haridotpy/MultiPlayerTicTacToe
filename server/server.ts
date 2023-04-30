@@ -14,8 +14,7 @@ const app = express();
 const httpServer: Server = createServer(app);
 
 const CORS_OPTION = {
-	origin: process.env.CLIENT_URI,
-	optionSuccessStatus: 200
+	origin: process.env.CLIENT_URI
 };
 
 const rooms: Room[] = [];
